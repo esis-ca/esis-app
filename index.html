@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- Metadatos Móviles y PWA (Android / iPhone Safari) -->
+  <meta name="theme-color" content="#0b2545">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ESIS Admin">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230b2545'/><path d='M256 80 L390 140 L390 280 Q390 400 256 460 Q122 400 122 280 L122 140 Z' fill='%23f59e0b'/><text x='256' y='310' font-family='Arial, sans-serif' font-size='150' font-weight='900' fill='%230b2545' text-anchor='middle'>ES</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230b2545'/><path d='M256 80 L390 140 L390 280 Q390 400 256 460 Q122 400 122 280 L122 140 Z' fill='%23f59e0b'/><text x='256' y='310' font-family='Arial, sans-serif' font-size='150' font-weight='900' fill='%230b2545' text-anchor='middle'>ES</text></svg>">
+  <title>ESIS, C.A. - Sistema Administrativo, Financiero y Operativo</title>
+
+  <!-- Estilos Corporativos -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Chart.js para visualización de métricas -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- ========================================================================
+       BARRA LATERAL (SIDEBAR ESCRITORIO)
+       ======================================================================== -->
+  <aside class="sidebar">
+    <div class="brand-header">
+      <div class="brand-logo">ES</div>
+      <div class="brand-info">
+        <h1>ESIS, C.A.</h1>
+        <p>SEGURIDAD INTEGRAL</p>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <div class="nav-section-title">Finanzas & Control</div>
+      
+      <div class="nav-item active" data-tab="tab-dashboard">
+        <span class="icon">📊</span>
+        <span>Dashboard</span>
+      </div>
+
+      <div class="nav-item" data-tab="tab-facturacion">
+        <span class="icon">📑</span>
+        <span>Facturación (USD/Bs)</span>
+      </div>
+
+      <div class="nav-item" data-tab="tab-bancos">
+        <span class="icon">🏦</span>
+        <span>Bancos & Cripto</span>
+      </div>
+
+      <div class="nav-item" data-tab="tab-gastos">
+        <span class="icon">📉</span>
+        <span>Gastos Operativos</span>
+      </div>
+
+      <div class="nav-section-title">Crédito & Tesorería</div>
+
+      <div class="nav-item" data-tab="tab-cxc">
+        <span class="icon">📥</span>
+        <span>Cuentas por Cobrar</span>
+      </div>
+
+      <div class="nav-item" data-tab="tab-cxp">
+        <span class="icon">📤</span>
+        <span>Cuentas por Pagar</span>
+      </div>
+
+      <div class="nav-item" data-tab="tab-conciliacion">
+        <span class="icon">⚖️</span>
+        <span>Conciliación Bancaria</span>
+      </div>
+
+      <div class="nav-section-title">Administración</div>
+
+      <div class="nav-item" data-tab="tab-proyectos">
+        <span class="icon">🏗️</span>
+        <span>Proyectos & Clientes</span>
+        <span class="nav-badge" id="sidebarProjectBadge">20</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="system-status">
+        <span class="status-dot"></span>
+        <span>Sistema 100% Operativo</span>
+      </div>
+      <div style="font-size: 11px; color: #64748b;">
+        Petrolero | Industrial | Comercial
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================================================================
+       ÁREA PRINCIPAL (MAIN WRAPPER)
+       ======================================================================== -->
+  <div class="main-wrapper">
+
+    <!-- Header Superior Fijo -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir Menú">☰</button>
+        <div class="page-title-box">
+          <h2 id="pageMainTitle">Dashboard General</h2>
+          <p id="pageSubTitle">Indicadores en tiempo real, Flujo de Caja y Rentabilidad</p>
+        </div>
+      </div>
+
+      <!-- Barra de Tasas BCV & USDT -->
+      <div class="rates-bar">
+        <div class="rate-chip">
+          <span class="badge badge-bcv">BCV</span>
+          <span class="rate-value" id="headerRateBCV" onclick="window.ESIS_APP.openModal('modalEditRates')">Bs 72.50</span>
+        </div>
+        <div class="rate-chip">
+          <span class="badge badge-usdt">USDT</span>
+          <span class="rate-value" id="headerRateUSDT" onclick="window.ESIS_APP.openModal('modalEditRates')">Bs 74.20</span>
+        </div>
+        <button class="btn-edit-rates" id="btnOpenRatesModal" title="Modificar Tasas">✏️</button>
+      </div>
+
+      <div class="header-right">
+        <!-- Selector Global de Proyecto (Hasta 20 Proyectos) -->
+        <div class="project-selector-wrapper">
+          <select id="globalProjectFilter" class="project-select" aria-label="Filtrar por Proyecto">
+            <option value="ALL">🌐 Todos los Proyectos (20)</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <!-- Cuerpo de Contenido (Pestañas / Módulos) -->
+    <main class="content-body">
+
+      <!-- ====================================================================
+           PESTAÑA 1: DASHBOARD
+           ==================================================================== -->
+      <section id="tab-dashboard" class="tab-pane active">
+        <!-- Grid de 6 Tarjetas KPI -->
+        <div class="kpi-grid">
+          <!-- KPI 1: Facturado -->
+          <div class="kpi-card primary" id="kpi-facturado">
+            <div class="kpi-top">
+              <span class="kpi-title">Total Facturado</span>
+              <span class="kpi-icon primary">📑</span>
+            </div>
+            <div class="kpi-value-usd">$ 0.00</div>
+            <div class="kpi-value-bs">Bs 0.00</div>
+            <div class="kpi-footer">Facturas emitidas y validadas</div>
+          </div>
+
+          <!-- KPI 2: Cobrado -->
+          <div class="kpi-card success" id="kpi-cobrado">
+            <div class="kpi-top">
+              <span class="kpi-title">Total Cobrado</span>
+              <span class="kpi-icon success">💵</span>
+            </div>
+            <div class="kpi-value-usd">$ 0.00</div>
+            <div class="kpi-value-bs">Bs 0.00</div>
+            <div class="kpi-footer">Ingresos efectivos percibidos</div>
+          </div>
+
+          <!-- KPI 3: Por Cobrar (CxC) -->
+          <div class="kpi-card danger" id="kpi-por-cobrar">
+            <div class="kpi-top">
+              <span class="kpi-title">Total Por Cobrar (CxC)</span>
+              <span class="kpi-icon danger">📥</span>
+            </div>
+            <div class="kpi-value-usd">$ 0.00</div>
+            <div class="kpi-value-bs">Bs 0.00</div>
+            <div class="kpi-footer">Cartera pendiente de cobro</div>
+          </div>
+
+          <!-- KPI 4: Gastos Totales -->
+          <div class="kpi-card danger" id="kpi-gastos">
+            <div class="kpi-top">
+              <span class="kpi-title">Total de Gastos</span>
+              <span class="kpi-icon danger">📉</span>
+            </div>
+            <div class="kpi-value-usd">$ 0.00</div>
+            <div class="kpi-value-bs">Bs 0.00</div>
+            <div class="kpi-footer">Costos operativos y de campo</div>
+          </div>
+
+          <!-- KPI 5: Por Pagar (CxP) -->
+          <div class="kpi-card accent" id="kpi-por-pagar">
+            <div class="kpi-top">
+              <span class="kpi-title">Total Por Pagar (CxP)</span>
+              <span class="kpi-icon warning">📤</span>
+            </div>
+            <div class="kpi-value-usd">$ 0.00</div>
+            <div class="kpi-value-bs">Bs 0.00</div>
+            <div class="kpi-footer">Obligaciones a proveedores</div>
+          </div>
+
+          <!-- KPI 6: Flujo de Caja Neto -->
+          <div class="kpi-card info" id="kpi-flujo-caja">
+            <div class="kpi-top">
+              <span class="kpi-title">Flujo de Caja Neto</span>
+              <span class="kpi-icon info">⚖️</span>
+            </div>
+            <div class="kpi-value-usd">$ 0.00</div>
+            <div class="kpi-value-bs">Bs 0.00</div>
+            <div class="kpi-footer">Ingresos Bancarios - Egresos</div>
+          </div>
+        </div>
+
+        <!-- Resumen de Cuentas Bancarias -->
+        <h3 style="font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 12px;">Disponibilidad en Cuentas Bancarias</h3>
+        <div class="bank-accounts-grid" id="dashboardBankSummary">
+          <!-- Renderizado dinámico desde DashboardModule -->
+        </div>
+
+        <!-- Gráficos Interactivos -->
+        <div class="charts-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3>📈 Facturación vs Cobros vs Gastos</h3>
+            </div>
+            <div class="chart-container">
+              <canvas id="chartBillingVsIncome"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>🍩 Gastos por Categoría Operativa</h3>
+            </div>
+            <div class="chart-container">
+              <canvas id="chartExpensesCategory"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de Rentabilidad por Proyecto -->
+        <div class="card">
+          <div class="card-header">
+            <h3>🏗️ Indicadores de Rentabilidad y Margen por Proyecto (Hasta 20)</h3>
+            <div class="card-actions">
+              <select id="dashboardClientFilter" class="form-control" style="font-size: 12px; padding: 4px 8px;">
+                <option value="ALL">Todos los Clientes</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Proyecto / Servicio</th>
+                  <th>Presupuesto Asignado</th>
+                  <th>Facturado USD</th>
+                  <th>Gastos / Costos</th>
+                  <th>Margen Neto USD</th>
+                  <th>Rentabilidad %</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="profitabilityTableBody">
+                <!-- Inyectado dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           PESTAÑA 2: FACTURACIÓN
+           ==================================================================== -->
+      <section id="tab-facturacion" class="tab-pane">
+        <div class="card">
+          <div class="card-header">
+            <h3>📑 Registro y Control de Facturación Fiscal</h3>
+            <div class="card-actions">
+              <button class="btn btn-primary" onclick="window.ESIS_APP.openModal('modalNewInvoice')">
+                ➕ Nueva Factura
+              </button>
+            </div>
+          </div>
+
+          <!-- Barra de Filtro y Búsqueda -->
+          <div class="filter-bar">
+            <div class="search-input-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="searchInvoiceInput" class="form-control" placeholder="Buscar por cliente, N° factura, proyecto...">
+            </div>
+          </div>
+
+          <!-- Tabla de Facturas -->
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>N° Documento</th>
+                  <th>Fecha</th>
+                  <th>Tipo</th>
+                  <th>Cliente / Proyecto</th>
+                  <th>Base USD</th>
+                  <th>Total Factura</th>
+                  <th>Saldo Pendiente</th>
+                  <th>Estado CxC</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="invoicesTableBody">
+                <!-- Renderizado dinámico -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           PESTAÑA 3: BANCOS
+           ==================================================================== -->
+      <section id="tab-bancos" class="tab-pane">
+        <!-- 3 Cuentas Bancarias Principales -->
+        <div class="bank-accounts-grid" id="bankModuleCards">
+          <!-- Inyectado dinámicamente -->
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>🏦 Movimientos Bancarios y Cripto (Binance USDT, BDV, Banesco)</h3>
+            <div class="card-actions">
+              <button class="btn btn-accent" onclick="window.ESIS_APP.openModal('modalExchangeCurrency')">
+                💱 Cambio USDT ➔ Bs
+              </button>
+              <button class="btn btn-primary" onclick="window.ESIS_APP.openModal('modalNewBankTx')">
+                ➕ Nuevo Movimiento
+              </button>
+            </div>
+          </div>
+
+          <!-- Filtros de Bancos -->
+          <div class="filter-bar">
+            <div class="search-input-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="searchBankTxInput" class="form-control" placeholder="Buscar por referencia, tercero, concepto...">
+            </div>
+            <div>
+              <select id="bankAccountFilter" class="form-control" style="font-size: 13px;">
+                <option value="ALL">Todas las Cuentas Bancarias</option>
+                <option value="ACC-BINANCE">Binance (USDT)</option>
+                <option value="ACC-BDV">Banco de Venezuela (Bs)</option>
+                <option value="ACC-BANESCO">Banesco JM (Bs)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Tabla de Movimientos Bancarios -->
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Tipo</th>
+                  <th>Cuenta Bancaria</th>
+                  <th>Referencia</th>
+                  <th>Tercero / Descripción</th>
+                  <th>Monto Moneda</th>
+                  <th>Equivalencia</th>
+                  <th>Conciliación</th>
+                </tr>
+              </thead>
+              <tbody id="bankTransactionsTableBody">
+                <!-- Renderizado dinámico -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           PESTAÑA 4: GASTOS
+           ==================================================================== -->
+      <section id="tab-gastos" class="tab-pane">
+        <div class="card">
+          <div class="card-header">
+            <h3>📉 Control de Gastos Operativos y Petroleros</h3>
+            <div class="card-actions">
+              <button class="btn btn-danger" onclick="window.ESIS_APP.openModal('modalNewExpense')">
+                ➕ Registrar Gasto
+              </button>
+            </div>
+          </div>
+
+          <!-- Filtros de Gastos -->
+          <div class="filter-bar">
+            <div class="search-input-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="searchExpenseInput" class="form-control" placeholder="Buscar por proveedor, rubro, N° factura...">
+            </div>
+            <div>
+              <select id="expenseProjectFilter" class="form-control" style="font-size: 13px;">
+                <option value="ALL">Todos los Proyectos</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Tabla de Gastos -->
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Categoría / Subcategoría</th>
+                  <th>Proyecto Asociado</th>
+                  <th>Proveedor / Factura</th>
+                  <th>Monto USD</th>
+                  <th>Monto Bs</th>
+                  <th>Banco Pagador</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="expensesTableBody">
+                <!-- Renderizado dinámico -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           PESTAÑA 5: CUENTAS POR COBRAR (CxC)
+           ==================================================================== -->
+      <section id="tab-cxc" class="tab-pane">
+        <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 16px;">
+          <div class="kpi-card danger">
+            <span class="kpi-title">Por Cobrar Total</span>
+            <div class="kpi-value-usd" id="cxcSummaryPending">$ 0.00</div>
+          </div>
+          <div class="kpi-card accent">
+            <span class="kpi-title">Monto con Días de Mora</span>
+            <div class="kpi-value-usd" id="cxcSummaryOverdue">$ 0.00</div>
+          </div>
+          <div class="kpi-card success">
+            <span class="kpi-title">Total Recaudado</span>
+            <div class="kpi-value-usd" id="cxcSummaryCollected">$ 0.00</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>📥 Cuentas por Cobrar a Clientes Petroleros e Industriales</h3>
+          </div>
+
+          <div class="filter-bar">
+            <div class="search-input-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="searchCxCInput" class="form-control" placeholder="Buscar cliente, documento, proyecto...">
+            </div>
+            <div>
+              <select id="cxcStatusFilter" class="form-control" style="font-size: 13px;">
+                <option value="ALL">Todos los Estados</option>
+                <option value="PENDIENTE">Pendientes</option>
+                <option value="PARCIAL">Abono Parcial</option>
+                <option value="VENCIDAS">⚠️ Solo Vencidas / En Mora</option>
+                <option value="PAGADO">Cobrado / Liquidado</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Proyecto</th>
+                  <th>Factura</th>
+                  <th>Emisión / Vence</th>
+                  <th>Monto Total</th>
+                  <th>Cobrado</th>
+                  <th>Saldo Pendiente</th>
+                  <th>Días Mora / Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="cxcTableBody">
+                <!-- Renderizado dinámico -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           PESTAÑA 6: CUENTAS POR PAGAR (CxP)
+           ==================================================================== -->
+      <section id="tab-cxp" class="tab-pane">
+        <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 16px;">
+          <div class="kpi-card danger">
+            <span class="kpi-title">Por Pagar Total</span>
+            <div class="kpi-value-usd" id="cxpSummaryPending">$ 0.00</div>
+          </div>
+          <div class="kpi-card accent">
+            <span class="kpi-title">Obligaciones Vencidas</span>
+            <div class="kpi-value-usd" id="cxpSummaryOverdue">$ 0.00</div>
+          </div>
+          <div class="kpi-card success">
+            <span class="kpi-title">Total Pagado a Proveedores</span>
+            <div class="kpi-value-usd" id="cxpSummaryPaid">$ 0.00</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>📤 Cuentas por Pagar a Proveedores y Subcontratistas</h3>
+          </div>
+
+          <div class="filter-bar">
+            <div class="search-input-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="searchCxPInput" class="form-control" placeholder="Buscar proveedor, factura, proyecto...">
+            </div>
+            <div>
+              <select id="cxpStatusFilter" class="form-control" style="font-size: 13px;">
+                <option value="ALL">Todos los Estados</option>
+                <option value="PENDIENTE">Pendientes</option>
+                <option value="PARCIAL">Pagos Parciales</option>
+                <option value="VENCIDAS">⚠️ Solo Vencidas</option>
+                <option value="PAGADO">Pagado Total</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Proveedor</th>
+                  <th>Proyecto</th>
+                  <th>Factura / Comprobante</th>
+                  <th>Emisión / Vence</th>
+                  <th>Monto Total</th>
+                  <th>Pagado</th>
+                  <th>Saldo Pendiente</th>
+                  <th>Días Mora / Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="cxpTableBody">
+                <!-- Renderizado dinámico -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           PESTAÑA 7: CONCILIACIÓN BANCARIA
+           ==================================================================== -->
+      <section id="tab-conciliacion" class="tab-pane">
+        <div class="card">
+          <div class="card-header">
+            <h3>⚖️ Conciliación Bancaria Mensual & Auditoría</h3>
+            <div class="card-actions">
+              <button class="btn btn-outline" onclick="window.ConciliacionModule.printReconciliationReport()">
+                🖨️ Imprimir Informe
+              </button>
+              <button class="btn btn-primary" id="btnSaveReconciliation">
+                💾 Guardar Cierre
+              </button>
+            </div>
+          </div>
+
+          <!-- Filtros de Conciliación -->
+          <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 18px;">
+            <div class="form-group">
+              <label>Cuenta Bancaria:</label>
+              <select id="concilAccountSelect" class="form-control"></select>
+            </div>
+            <div class="form-group">
+              <label>Período / Mes:</label>
+              <select id="concilPeriodSelect" class="form-control"></select>
+            </div>
+            <div class="form-group">
+              <label>Saldo según Extracto Bancario Oficial:</label>
+              <input type="number" step="0.01" id="concilStatementInput" class="form-control" placeholder="0.00">
+            </div>
+          </div>
+
+          <!-- Banner de Estado de Conciliación -->
+          <div id="concilStatusBanner" class="card" style="padding: 12px 16px; margin-bottom: 16px;">
+            <!-- Indicador dinámico -->
+          </div>
+
+          <!-- Tarjeta de Comparativa de Saldos -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+            <div class="dual-box">
+              <p style="font-size:12px; color:var(--text-muted);">Saldo en Libros (Sistema)</p>
+              <h3 id="concilBookBalance" style="color:var(--primary);">$ 0.00</h3>
+            </div>
+            <div class="dual-box">
+              <p style="font-size:12px; color:var(--text-muted);">Saldo Extracto Ingresado</p>
+              <h3 id="concilStatementDisplay" style="color:var(--secondary);">$ 0.00</h3>
+            </div>
+            <div class="dual-box">
+              <p style="font-size:12px; color:var(--text-muted);">Diferencia Neta</p>
+              <h3 id="concilDifference" style="color:var(--success);">$ 0.00</h3>
+            </div>
+          </div>
+
+          <h4>Movimientos del Período (Marque las partidas conciliadas con su extracto)</h4>
+          <div class="table-responsive" style="margin-top: 10px;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 40px; text-align:center;">✓</th>
+                  <th>Fecha</th>
+                  <th>Tipo</th>
+                  <th>Referencia</th>
+                  <th>Tercero / Descripción</th>
+                  <th style="text-align:right;">Monto</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="concilTableBody">
+                <!-- Renderizado dinámico -->
+              </tbody>
+            </table>
+          </div>
+
+          <h4 style="margin-top: 24px;">Histórico de Cierres de Auditoría</h4>
+          <div class="table-responsive" style="margin-top: 10px;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Período</th>
+                  <th>Fecha Cierre</th>
+                  <th>Banco</th>
+                  <th>Saldo Libros</th>
+                  <th>Saldo Extracto</th>
+                  <th>Diferencia</th>
+                  <th>Resultado</th>
+                </tr>
+              </thead>
+              <tbody id="concilAuditHistoryBody">
+                <!-- Renderizado dinámico -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           PESTAÑA 8: PROYECTOS & CONFIGURACIÓN
+           ==================================================================== -->
+      <section id="tab-proyectos" class="tab-pane">
+        <div class="card">
+          <div class="card-header">
+            <h3>🏗️ Catálogo de Proyectos Petroleros e Industriales (Hasta 20)</h3>
+            <div class="card-actions">
+              <span class="badge-status badge-paid" id="projectSlotsCounter">12 / 20 Proyectos</span>
+              <button class="btn btn-primary" onclick="window.ESIS_APP.openModal('modalNewProject')">
+                ➕ Nuevo Proyecto
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Proyecto / Servicio</th>
+                  <th>Cliente</th>
+                  <th>Presupuesto USD</th>
+                  <th>Ingresos</th>
+                  <th>Costos</th>
+                  <th>Margen Neto</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="projectsTableBody">
+                <!-- Renderizado dinámico -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Directorio de Clientes -->
+        <div class="card">
+          <div class="card-header">
+            <h3>🏢 Directorio de Clientes y Empresas Petroleras</h3>
+            <div class="card-actions">
+              <button class="btn btn-secondary" onclick="window.ESIS_APP.openModal('modalNewClient')">
+                ➕ Registrar Cliente
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Empresa / Razón Social</th>
+                  <th>RIF</th>
+                  <th>Contacto</th>
+                  <th>Teléfono / Email</th>
+                </tr>
+              </thead>
+              <tbody id="clientsTableBody">
+                <!-- Renderizado dinámico -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Centro de Respaldos y Configuración -->
+        <div class="card">
+          <div class="card-header">
+            <h3>💾 Mantenimiento, Copia de Seguridad y Datos</h3>
+          </div>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button class="btn btn-outline" id="btnExportBackup">
+              ⬇️ Descargar Copia de Seguridad JSON
+            </button>
+            <label class="btn btn-outline" style="cursor: pointer;">
+              ⬆️ Restaurar Copia JSON
+              <input type="file" id="importBackupInput" accept=".json" style="display: none;">
+            </label>
+            <button class="btn btn-outline" style="color: var(--danger);" id="btnResetDemoData">
+              🔄 Reiniciar a Datos de Prueba ESIS C.A.
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     BARRA DE NAVEGACIÓN MÓVIL (BOTTOM NAV PARA ANDROID / IPHONE)
+     ========================================================================== -->
+<nav class="mobile-bottom-nav">
+  <button class="mobile-nav-btn active" data-tab="tab-dashboard">
+    <span class="icon">📊</span>
+    <span>Dashboard</span>
+  </button>
+  <button class="mobile-nav-btn" data-tab="tab-facturacion">
+    <span class="icon">📑</span>
+    <span>Facturación</span>
+  </button>
+  <button class="mobile-nav-btn" data-tab="tab-bancos">
+    <span class="icon">🏦</span>
+    <span>Bancos</span>
+  </button>
+  <button class="mobile-nav-btn" data-tab="tab-gastos">
+    <span class="icon">📉</span>
+    <span>Gastos</span>
+  </button>
+  <button class="mobile-nav-btn" data-tab="tab-cxc">
+    <span class="icon">📥</span>
+    <span>CxC</span>
+  </button>
+  <button class="mobile-nav-btn" data-tab="tab-conciliacion">
+    <span class="icon">⚖️</span>
+    <span>Conciliar</span>
+  </button>
+</nav>
+
+<!-- ==========================================================================
+     MODALES DEL SISTEMA
+     ========================================================================== -->
+
+<!-- 1. Modal: Nueva Factura Dual USD / Bs -->
+<div class="modal-backdrop" id="modalNewInvoice">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-header">
+      <h3>📑 Emisión de Factura Fiscal (Dual USD & Bolívares)</h3>
+      <button class="modal-close-btn" data-close-modal="modalNewInvoice">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="newInvoiceForm">
+        <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 16px;">
+          <div class="form-group">
+            <label>N° de Factura <span class="required">*</span></label>
+            <input type="text" id="invDocNumber" class="form-control" placeholder="FAC-2026-005" required>
+          </div>
+          <div class="form-group">
+            <label>N° de Control <span class="required">*</span></label>
+            <input type="text" id="invControlNumber" class="form-control" placeholder="00-001460" required>
+          </div>
+          <div class="form-group">
+            <label>Fecha de Emisión <span class="required">*</span></label>
+            <input type="date" id="invDate" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Fecha de Vencimiento <span class="required">*</span></label>
+            <input type="date" id="invDueDate" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Tipo de Documento</label>
+            <select id="invType" class="form-control">
+              <option value="FACTURA">Factura</option>
+              <option value="NOTA_CREDITO">Nota de Crédito</option>
+              <option value="NOTA_DEBITO">Nota de Débito</option>
+              <option value="RETENCION_IVA">Retención IVA</option>
+              <option value="RETENCION_ISLR">Retención ISLR</option>
+              <option value="RETENCION_MUNICIPAL">Retención Municipal</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 16px;">
+          <div class="form-group">
+            <label>Cliente / Razón Social <span class="required">*</span></label>
+            <select id="invoiceClientSelect" class="form-control" required></select>
+          </div>
+          <div class="form-group">
+            <label>Proyecto Asociado (Hasta 20) <span class="required">*</span></label>
+            <select id="invoiceProjectSelect" class="form-control" required></select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 18px;">
+          <label>Concepto / Detalle del Servicio Petrolero o Industrial:</label>
+          <input type="text" id="invConcept" class="form-control" placeholder="Servicio de custodia perimetral armada y monitoreo CCTV mes de..." required>
+        </div>
+
+        <!-- Secciones Duales USD y Bs -->
+        <div class="dual-section-grid">
+          <!-- SECCIÓN 1: USD -->
+          <div class="dual-box usd-box">
+            <div class="dual-box-header">
+              <h4>💵 SECCIÓN 1 – USD</h4>
+              <span class="badge-status badge-paid">Moneda Base</span>
+            </div>
+            
+            <div class="form-group">
+              <label>Base Imponible USD <span class="required">*</span></label>
+              <input type="number" step="0.01" id="invBaseUSD" class="form-control" placeholder="0.00" required>
+            </div>
+
+            <div class="form-group">
+              <label>IVA 16% USD (Cálculo Automático):</label>
+              <input type="text" id="invIvaUSD" class="form-control" readonly>
+            </div>
+
+            <div class="form-group">
+              <label>Total Factura USD:</label>
+              <input type="text" id="invTotalUSD" class="form-control" readonly style="font-weight: 700;">
+            </div>
+
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+              <div class="form-group">
+                <label>Ret. IVA (USD):</label>
+                <input type="number" step="0.01" id="invRetIvaUSD" class="form-control" placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label>Ret. ISLR (USD):</label>
+                <input type="number" step="0.01" id="invRetIslrUSD" class="form-control" placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label>Ret. Mun. (USD):</label>
+                <input type="number" step="0.01" id="invRetMunUSD" class="form-control" placeholder="0.00">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Monto Neto a Cobrar USD:</label>
+              <input type="text" id="invNetUSD" class="form-control" readonly style="font-weight: 800; color: var(--primary);">
+            </div>
+          </div>
+
+          <!-- SECCIÓN 2: Bolívares (Bs) -->
+          <div class="dual-box bs-box">
+            <div class="dual-box-header">
+              <h4>🇻🇪 SECCIÓN 2 – Bolívares (Bs)</h4>
+              <span class="badge-status badge-partial">Convertido Automático</span>
+            </div>
+
+            <div class="form-group">
+              <label>Tipo de Cambio Oficial BCV (Editable):</label>
+              <input type="number" step="0.01" id="invRateBCV" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label>Base Imponible Bs:</label>
+              <input type="text" id="invBaseVES" class="form-control" readonly>
+            </div>
+
+            <div class="form-group">
+              <label>IVA 16% Bs:</label>
+              <input type="text" id="invIvaVES" class="form-control" readonly>
+            </div>
+
+            <div class="form-group">
+              <label>Total Factura Bs:</label>
+              <input type="text" id="invTotalVES" class="form-control" readonly style="font-weight: 700;">
+            </div>
+
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+              <div class="form-group">
+                <label>Ret. IVA (Bs):</label>
+                <input type="text" id="invRetIvaVES" class="form-control" readonly>
+              </div>
+              <div class="form-group">
+                <label>Ret. ISLR (Bs):</label>
+                <input type="text" id="invRetIslrVES" class="form-control" readonly>
+              </div>
+              <div class="form-group">
+                <label>Ret. Mun. (Bs):</label>
+                <input type="text" id="invRetMunVES" class="form-control" readonly>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Neto a Cobrar Bs:</label>
+              <input type="text" id="invNetVES" class="form-control" readonly style="font-weight: 800; color: var(--secondary);">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="margin-top: 16px;">
+          <button type="button" class="btn btn-outline" data-close-modal="modalNewInvoice">Cancelar</button>
+          <button type="submit" class="btn btn-primary">💾 Guardar Factura & Registrar en CxC</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Modal: Ver Formato Factura Fiscal / Imprimir -->
+<div class="modal-backdrop" id="modalViewInvoice">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-header">
+      <h3>📄 Formato de Factura Fiscal ESIS, C.A.</h3>
+      <button class="modal-close-btn" data-close-modal="modalViewInvoice">&times;</button>
+    </div>
+    <div class="modal-body printable-area" id="printableInvoiceContainer">
+      <!-- Inyectado dinámicamente -->
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" data-close-modal="modalViewInvoice">Cerrar</button>
+      <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Modal: Nuevo Movimiento Bancario -->
+<div class="modal-backdrop" id="modalNewBankTx">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3>🏦 Registrar Movimiento Bancario</h3>
+      <button class="modal-close-btn" data-close-modal="modalNewBankTx">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="newBankTxForm">
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Tipo de Operación <span class="required">*</span></label>
+            <select id="bankTxTypeSelect" class="form-control" required>
+              <option value="INGRESO">Ingreso (Cobro / Abono)</option>
+              <option value="EGRESO">Egreso / Pago</option>
+              <option value="TRANSFERENCIA">Transferencia Entre Cuentas</option>
+              <option value="COMPRA">Compra / Suministro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Cuenta Bancaria <span class="required">*</span></label>
+            <select id="bankTxAccountSelect" class="form-control" required></select>
+          </div>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>N° Referencia <span class="required">*</span></label>
+            <input type="text" id="bankTxReference" class="form-control" placeholder="TRANSF-98210" required>
+          </div>
+          <div class="form-group">
+            <label>Fecha <span class="required">*</span></label>
+            <input type="date" id="bankTxDate" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Tercero (Cliente / Proveedor):</label>
+            <input type="text" id="bankTxParty" class="form-control" placeholder="Nombre de empresa o persona">
+          </div>
+          <div class="form-group">
+            <label>Proyecto Asociado:</label>
+            <select id="bankTxProjectSelect" class="form-control"></select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Monto de la Operación (en la moneda de la cuenta) <span class="required">*</span></label>
+          <input type="number" step="0.01" id="bankTxAmount" class="form-control" placeholder="0.00" required>
+        </div>
+
+        <div class="form-group">
+          <label>Descripción / Concepto:</label>
+          <input type="text" id="bankTxDescription" class="form-control" placeholder="Detalle del movimiento bancario...">
+        </div>
+
+        <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 10px;">
+          <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer;">
+            <input type="checkbox" id="bankTxIsExpense" checked>
+            <span>Vincular automáticamente como Gasto Operativo (si es Egreso)</span>
+          </label>
+        </div>
+
+        <div class="modal-footer" style="margin-top: 16px;">
+          <button type="button" class="btn btn-outline" data-close-modal="modalNewBankTx">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Transacción</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Modal: Cambio de Divisas USDT -> Bs (P2P / Arbitraje) -->
+<div class="modal-backdrop" id="modalExchangeCurrency">
+  <div class="modal-dialog">
+    <div class="modal-header" style="background: linear-gradient(135deg, #181a20, #2b313a);">
+      <h3 style="color: #f0b90b;">💱 Conversión de Divisas (Binance USDT ➔ Cuentas en Bs)</h3>
+      <button class="modal-close-btn" data-close-modal="modalExchangeCurrency">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="currencyExchangeForm">
+        <div class="form-group">
+          <label>Monto a Debitar en Binance (USDT) <span class="required">*</span></label>
+          <input type="number" step="0.01" id="exchangeUsdtAmount" class="form-control" placeholder="Ej. 1000.00" required>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Cuenta Destino en Bs <span class="required">*</span></label>
+            <select id="exchangeDestAccountSelect" class="form-control" required></select>
+          </div>
+          <div class="form-group">
+            <label>Tasa Pactada USDT / Bs <span class="required">*</span></label>
+            <input type="number" step="0.01" id="exchangeRateInput" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Bolívares a Acreditar (Automático):</label>
+          <input type="text" id="exchangeBsResult" class="form-control" readonly style="font-weight: 800; font-size: 16px; color: var(--secondary);">
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Referencia P2P / Orden:</label>
+            <input type="text" id="exchangeReference" class="form-control" placeholder="P2P-883391">
+          </div>
+          <div class="form-group">
+            <label>Comprador / Cajero P2P:</label>
+            <input type="text" id="exchangeBuyerParty" class="form-control" placeholder="Binance P2P">
+          </div>
+        </div>
+
+        <div class="modal-footer" style="margin-top: 16px;">
+          <button type="button" class="btn btn-outline" data-close-modal="modalExchangeCurrency">Cancelar</button>
+          <button type="submit" class="btn btn-accent">Confirmar Débito y Crédito</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Modal: Nuevo Gasto -->
+<div class="modal-backdrop" id="modalNewExpense">
+  <div class="modal-dialog">
+    <div class="modal-header" style="background-color: var(--primary);">
+      <h3>📉 Registrar Gasto Operativo / Administrativo</h3>
+      <button class="modal-close-btn" data-close-modal="modalNewExpense">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="newExpenseForm">
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Fecha <span class="required">*</span></label>
+            <input type="date" id="expDate" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Proyecto Asociado <span class="required">*</span></label>
+            <select id="expProjectSelect" class="form-control" required></select>
+          </div>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Categoría <span class="required">*</span></label>
+            <select id="expCategorySelect" class="form-control" required></select>
+          </div>
+          <div class="form-group">
+            <label>Subcategoría:</label>
+            <select id="expSubcategorySelect" class="form-control"></select>
+          </div>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Proveedor <span class="required">*</span></label>
+            <input type="text" id="expSupplier" class="form-control" placeholder="Nombre de proveedor" required>
+          </div>
+          <div class="form-group">
+            <label>N° Factura / Recibo:</label>
+            <input type="text" id="expInvoiceNumber" class="form-control" placeholder="FAC-0012">
+          </div>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Monto USD <span class="required">*</span></label>
+            <input type="number" step="0.01" id="expAmountUSD" class="form-control" placeholder="0.00" required>
+          </div>
+          <div class="form-group">
+            <label>Monto Equivalente en Bs:</label>
+            <input type="text" id="expAmountVES" class="form-control" readonly>
+          </div>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Condición de Pago:</label>
+            <select id="expStatusSelect" class="form-control">
+              <option value="PAGADO">Pagado al Contado (Débito Inmediato)</option>
+              <option value="PENDIENTE">A Crédito (Crear Cuenta por Pagar - CxP)</option>
+            </select>
+          </div>
+          <div class="form-group" id="expBankGroup">
+            <label>Banco Pagador:</label>
+            <select id="expBankSelect" class="form-control"></select>
+          </div>
+          <div class="form-group" id="expDueGroup" style="display: none;">
+            <label>Fecha de Vencimiento CxP:</label>
+            <input type="date" id="expDueDate" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Observaciones:</label>
+          <input type="text" id="expObservations" class="form-control" placeholder="Detalles de la compra...">
+        </div>
+
+        <div class="modal-footer" style="margin-top: 16px;">
+          <button type="button" class="btn btn-outline" data-close-modal="modalNewExpense">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Guardar Gasto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Modal: Registrar Cobro CxC -->
+<div class="modal-backdrop" id="modalRegisterCobro">
+  <div class="modal-dialog">
+    <div class="modal-header" style="background-color: var(--success-dark);">
+      <h3>💵 Registrar Cobro de Factura (Ingreso Bancario)</h3>
+      <button class="modal-close-btn" data-close-modal="modalRegisterCobro">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="registerCobroForm">
+        <input type="hidden" id="cobroInvoiceId">
+
+        <div style="background:#f8fafc; padding:12px; border-radius:6px; border:1px solid #e2e8f0; margin-bottom:14px;">
+          <p><strong>Factura:</strong> <span id="cobroInvoiceDoc"></span></p>
+          <p><strong>Total Facturado:</strong> <span id="cobroTotalInvoice"></span> | <strong>Saldo Pendiente:</strong> <span id="cobroPendingAmount" style="color:var(--danger); font-weight:800;"></span></p>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Monto a Cobrar (USD) <span class="required">*</span></label>
+            <input type="number" step="0.01" id="cobroAmountUSD" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Fecha de Cobro <span class="required">*</span></label>
+            <input type="date" id="cobroDate" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Cuenta Receptora <span class="required">*</span></label>
+            <select id="cobroBankSelect" class="form-control" required></select>
+          </div>
+          <div class="form-group">
+            <label>Referencia Bancaria <span class="required">*</span></label>
+            <input type="text" id="cobroReference" class="form-control" placeholder="TRANSF-12345" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Notas del Cobro:</label>
+          <input type="text" id="cobroNotes" class="form-control" placeholder="Abono o liquidación completa...">
+        </div>
+
+        <div class="modal-footer" style="margin-top: 16px;">
+          <button type="button" class="btn btn-outline" data-close-modal="modalRegisterCobro">Cancelar</button>
+          <button type="submit" class="btn btn-success">Procesar Ingreso</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 7. Modal: Registrar Pago CxP -->
+<div class="modal-backdrop" id="modalRegisterPago">
+  <div class="modal-dialog">
+    <div class="modal-header" style="background-color: var(--danger-dark);">
+      <h3>💳 Registrar Pago a Proveedor (Débito Bancario)</h3>
+      <button class="modal-close-btn" data-close-modal="modalRegisterPago">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="registerPagoForm">
+        <input type="hidden" id="pagoPayableId">
+
+        <div style="background:#f8fafc; padding:12px; border-radius:6px; border:1px solid #e2e8f0; margin-bottom:14px;">
+          <p><strong>Proveedor:</strong> <span id="pagoSupplierName"></span></p>
+          <p><strong>Total Deuda:</strong> <span id="pagoTotalAmount"></span> | <strong>Saldo Pendiente:</strong> <span id="pagoPendingAmount" style="color:var(--danger); font-weight:800;"></span></p>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Monto a Pagar (USD) <span class="required">*</span></label>
+            <input type="number" step="0.01" id="pagoAmountUSD" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Fecha de Pago <span class="required">*</span></label>
+            <input type="date" id="pagoDate" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Cuenta Bancaria Pagadora <span class="required">*</span></label>
+            <select id="pagoBankSelect" class="form-control" required></select>
+          </div>
+          <div class="form-group">
+            <label>N° Referencia / Comprobante <span class="required">*</span></label>
+            <input type="text" id="pagoReference" class="form-control" placeholder="PAG-998811" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Notas del Pago:</label>
+          <input type="text" id="pagoNotes" class="form-control" placeholder="Pago de insumos o servicios...">
+        </div>
+
+        <div class="modal-footer" style="margin-top: 16px;">
+          <button type="button" class="btn btn-outline" data-close-modal="modalRegisterPago">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Emitir Pago</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 8. Modal: Imprimir Informe de Conciliación -->
+<div class="modal-backdrop" id="modalPrintAuditReport">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-header">
+      <h3>⚖️ Informe de Conciliación Bancaria Mensual</h3>
+      <button class="modal-close-btn" data-close-modal="modalPrintAuditReport">&times;</button>
+    </div>
+    <div class="modal-body printable-area" id="printableAuditContainer">
+      <!-- Inyectado dinámicamente -->
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" data-close-modal="modalPrintAuditReport">Cerrar</button>
+      <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Imprimir Reporte</button>
+    </div>
+  </div>
+</div>
+
+<!-- 9. Modal: Nuevo Proyecto -->
+<div class="modal-backdrop" id="modalNewProject">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3>🏗️ Agregar Proyecto de Seguridad (Hasta 20)</h3>
+      <button class="modal-close-btn" data-close-modal="modalNewProject">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="newProjectForm">
+        <div class="form-group">
+          <label>Nombre del Proyecto / Servicio <span class="required">*</span></label>
+          <input type="text" id="projName" class="form-control" placeholder="Ej. Seguridad Taladro PDVSA 15 San Tomé" required>
+        </div>
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Cliente Asignado <span class="required">*</span></label>
+            <input type="text" id="projClient" class="form-control" placeholder="PDVSA / Petrocedeño" required>
+          </div>
+          <div class="form-group">
+            <label>Presupuesto Estimado USD:</label>
+            <input type="number" step="0.01" id="projBudgetUSD" class="form-control" placeholder="50000.00">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Descripción Operacional:</label>
+          <textarea id="projDescription" class="form-control" rows="2" placeholder="Detalles de puestos, guardias y flota..."></textarea>
+        </div>
+        <div class="modal-footer" style="margin-top: 16px;">
+          <button type="button" class="btn btn-outline" data-close-modal="modalNewProject">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Crear Proyecto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 10. Modal: Nuevo Cliente -->
+<div class="modal-backdrop" id="modalNewClient">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3>🏢 Registrar Cliente Petrolero / Comercial</h3>
+      <button class="modal-close-btn" data-close-modal="modalNewClient">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="newClientForm">
+        <div class="form-group">
+          <label>Razón Social <span class="required">*</span></label>
+          <input type="text" id="cliName" class="form-control" placeholder="Ej. PDVSA Petropiar S.A." required>
+        </div>
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>RIF Fiscal <span class="required">*</span></label>
+            <input type="text" id="cliRif" class="form-control" placeholder="J-12345678-0" required>
+          </div>
+          <div class="form-group">
+            <label>Persona de Contacto:</label>
+            <input type="text" id="cliContact" class="form-control" placeholder="Ing. Administrador">
+          </div>
+        </div>
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>Teléfono:</label>
+            <input type="text" id="cliPhone" class="form-control" placeholder="+58 281-000-0000">
+          </div>
+          <div class="form-group">
+            <label>Email de Finanzas / Pagos:</label>
+            <input type="email" id="cliEmail" class="form-control" placeholder="finanzas@cliente.com">
+          </div>
+        </div>
+        <div class="modal-footer" style="margin-top: 16px;">
+          <button type="button" class="btn btn-outline" data-close-modal="modalNewClient">Cancelar</button>
+          <button type="submit" class="btn btn-secondary">Guardar Cliente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 11. Modal: Editar Tasas de Cambio Globales -->
+<div class="modal-backdrop" id="modalEditRates">
+  <div class="modal-dialog" style="max-width: 450px;">
+    <div class="modal-header">
+      <h3>✏️ Actualizar Tasas de Cambio</h3>
+      <button class="modal-close-btn" data-close-modal="modalEditRates">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="editRatesForm">
+        <div class="form-group">
+          <label>Tasa Oficial BCV (Bs / USD) <span class="required">*</span></label>
+          <input type="number" step="0.01" id="editRateBCVInput" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Tasa USDT / Bs (Binance P2P) <span class="required">*</span></label>
+          <input type="number" step="0.01" id="editRateUSDTInput" class="form-control" required>
+        </div>
+        <div class="modal-footer" style="margin-top: 16px;">
+          <button type="button" class="btn btn-outline" data-close-modal="modalEditRates">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Actualizar Tasas</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Contenedor de Notificaciones Toast Flotantes -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Scripts del Sistema ESIS, C.A. -->
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/modules/dashboard.js"></script>
+<script src="js/modules/facturacion.js"></script>
+<script src="js/modules/bancos.js"></script>
+<script src="js/modules/gastos.js"></script>
+<script src="js/modules/cxc.js"></script>
+<script src="js/modules/cxp.js"></script>
+<script src="js/modules/conciliacion.js"></script>
+<script src="js/modules/proyectos.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
