@@ -339,3 +339,36 @@ document.getElementById("btnGuardarFactura").addEventListener("click", async () 
   const resultado = await enviarDatos("/api/facturacion", datosFactura);
   alert("Factura registrada correctamente");
 });
+
+// ===============================
+// PRUEBA DE REGISTRO DE FACTURACIÓN
+// ===============================
+document.addEventListener("DOMContentLoaded", () => {
+  const boton = document.createElement("button");
+  boton.textContent = "Probar conexión API";
+  boton.style.margin = "20px";
+  boton.onclick = async () => {
+    const datosFactura = {
+      fecha_emision: "2026-08-24",
+      numero_doc: "F001",
+      tipo: "factura",
+      base_usd: 100,
+      iva_usd: 16,
+      total_usd: 116,
+      tipo_cambio: 40,
+      base_bs: 4000,
+      iva_bs: 640,
+      total_bs: 4640,
+      ret_iva_bs: 0,
+      ret_islr_bs: 0,
+      ret_municipal_bs: 0,
+      cliente_id: 1,
+      proyecto_id: 1
+    };
+
+    const resultado = await enviarDatos("/api/facturacion", datosFactura);
+    alert("Factura registrada correctamente");
+  };
+
+  document.body.appendChild(boton);
+});
