@@ -339,7 +339,6 @@ document.getElementById("btnGuardarFactura").addEventListener("click", async () 
   const resultado = await enviarDatos("/api/facturacion", datosFactura);
   alert("Factura registrada correctamente");
 });
-
 // ===============================
 // PRUEBA DE REGISTRO DE FACTURACIÓN
 // ===============================
