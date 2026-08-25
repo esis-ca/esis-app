@@ -317,7 +317,10 @@
 
   window.FacturacionModule = FacturacionModule;
 })(typeof window !== 'undefined' ? window : this);
-document.getElementById("btnGuardarFactura").addEventListener("click", async () => {
+const botonGuardar = document.getElementById("btnGuardarFactura");
+if (botonGuardar) {
+  botonGuardar.addEventListener("click", guardarFactura);
+}
   const datosFactura = {
     fecha_emision: "2026-08-24",
     numero_doc: "F001",
