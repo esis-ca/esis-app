@@ -1,3 +1,24 @@
+// ===============================
+// CONEXIÓN CON API ESIS
+// ===============================
+const API_BASE = "https://esis-api.admonesisca.workers.dev";
+
+async function enviarDatos(ruta, datos) {
+  try {
+    const respuesta = await fetch(`${API_BASE}${ruta}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(datos)
+    });
+
+    const resultado = await respuesta.json();
+    console.log("Respuesta del servidor:", resultado);
+    return resultado;
+  } catch (error) {
+    console.error("Error al conectar con la API:", error);
+  }
+}
+
 /**
  * ESIS, C.A. - CONTROLADOR PRINCIPAL Y APLICACIÓN
  * Enrutador de Pestañas, Modales, Notificaciones Toast y Sincronización Global
